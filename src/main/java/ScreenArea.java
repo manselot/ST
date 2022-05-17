@@ -1,16 +1,12 @@
 import net.sourceforge.tess4j.TesseractException;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
-/** Getting a Rectangle of interest on the screen.
- Requires the MotivatedEndUser API - sold separately. */
+
 public class ScreenArea {
 
     Rectangle captureRect;
@@ -21,7 +17,6 @@ public class ScreenArea {
                 screen.getHeight(),
                 screen.getType());
         final JLabel screenLabel = new JLabel(new ImageIcon(screenCopy));
-        JScrollPane screenScroll = new JScrollPane(screenLabel);
         JFrame f = new JFrame("Button Example");
         f.setBounds(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
         f.add(screenLabel);
@@ -44,12 +39,15 @@ public class ScreenArea {
             public void mouseReleased(MouseEvent e) {
                 f.dispose();
                 try {
+                    ScreenOldArea.newScreen();
                     Answer.showWindow(Translate.translate());
                 } catch (TesseractException ex) {
                     throw new RuntimeException(ex);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 } catch (UnsupportedEncodingException ex) {
+                    throw new RuntimeException(ex);
+                } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
             }
@@ -80,26 +78,13 @@ public class ScreenArea {
                 Point end = me.getPoint();
                 captureRect = new Rectangle(start,
                         new Dimension(end.x-start.x, end.y-start.y));
+                ScreenOldArea.area = captureRect;
                 repaint(screen, screenCopy);
                 screenLabel.repaint();
-                BufferedImage image = null;
-                try {
-                    image = new Robot().createScreenCapture(captureRect);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    ImageIO.write(image, "png", new File("C:\\Users\\abuzer\\Desktop\\screenshot.png"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
 
             }
         });
-
-
-
-
 
     }
 
@@ -109,7 +94,7 @@ public class ScreenArea {
         if (captureRect!=null) {
             g.setColor(Color.RED);
             g.draw(captureRect);
-            g.setColor(new Color(255,255,255,25));
+            g.setColor(new Color(255,255,255,50));
             g.fill(captureRect);
         }
         g.dispose();
